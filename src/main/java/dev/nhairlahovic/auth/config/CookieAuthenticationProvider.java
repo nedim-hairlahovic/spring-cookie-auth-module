@@ -1,6 +1,6 @@
 package dev.nhairlahovic.auth.config;
 
-import dev.nhairlahovic.util.HmacUtil;
+import dev.nhairlahovic.auth.util.HmacUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
