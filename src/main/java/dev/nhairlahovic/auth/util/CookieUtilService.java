@@ -33,4 +33,16 @@ public class CookieUtilService {
                 .sameSite(cookieConfig.getSameSite())
                 .build();
     }
+
+
+    public ResponseCookie createExpiredAuthCookie() {
+        return ResponseCookie
+                .from(CookieAuthenticationFilter.AUTH_COOKIE_NAME, "")
+                .secure(true)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0) // Instruct browser to delete the cookie
+                .sameSite(cookieConfig.getSameSite())
+                .build();
+    }
 }
