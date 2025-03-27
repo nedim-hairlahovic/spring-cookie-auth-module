@@ -22,7 +22,7 @@ After adding, include it in your main project's  `pom.xml`:
 ```xml
 <dependency>
     <groupId>dev.nhairlahovic</groupId>
-    <artifactId>spring-cookie-auth-module</artifactId>
+    <artifactId>spring-cookie-auth</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -85,6 +85,7 @@ public class AuthController {
         return new AuthResponseDto(authResult.getName());
     }
 }
+```
 
 This simple authentication service handles user login by verifying credentials, generating a secure authentication cookie, and returning a token for further authorization:
 ```java
