@@ -1,6 +1,5 @@
 package dev.nhairlahovic.auth.util;
 
-import dev.nhairlahovic.auth.config.CookieAuthenticationFilter;
 import dev.nhairlahovic.auth.config.CookieConfigProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -25,22 +24,21 @@ public class CookieUtilService {
 
     public ResponseCookie createAuthCookie(String cookieValue) {
         return ResponseCookie
-                .from(CookieAuthenticationFilter.AUTH_COOKIE_NAME, cookieValue)
-                .secure(true)
-                .httpOnly(true)
-                .path("/")
+                .from(cookieConfig.getName(), cookieValue)
+                .secure(cookieConfig.isSecure())
+                .httpOnly(cookieConfig.isHttpOnly())
+                .path(cookieConfig.getPath())
                 .maxAge(cookieConfig.getMaxAge())
                 .sameSite(cookieConfig.getSameSite())
                 .build();
     }
 
-
     public ResponseCookie createExpiredAuthCookie() {
         return ResponseCookie
-                .from(CookieAuthenticationFilter.AUTH_COOKIE_NAME, "")
-                .secure(true)
-                .httpOnly(true)
-                .path("/")
+                .from(cookieConfig.getName(), "")
+                .secure(cookieConfig.isSecure())
+                .httpOnly(cookieConfig.isHttpOnly())
+                .path(cookieConfig.getPath())
                 .maxAge(0) // Instruct browser to delete the cookie
                 .sameSite(cookieConfig.getSameSite())
                 .build();

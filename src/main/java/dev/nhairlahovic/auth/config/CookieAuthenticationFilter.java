@@ -20,14 +20,13 @@ import java.util.Optional;
 public class CookieAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthenticationManager authenticationManager;
-
-    public static final String AUTH_COOKIE_NAME = "AUTH-COOKIE";
+    private final CookieConfigProperties cookieConfig;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        Optional<Cookie> authCookie = getCookie(request, AUTH_COOKIE_NAME);
+        Optional<Cookie> authCookie = getCookie(request, cookieConfig.getName());
 
         if (authCookie.isPresent()) {
             String authCookieValue = authCookie.get().getValue();

@@ -13,6 +13,10 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "cookie.auth", name = "secret-key")
 public class CookieConfigProperties {
     private String secretKey;
-    private int maxAge = 86400; // Default: 1 day (86400 seconds)
+    private String name = "AUTH_COOKIE";
+    private String path = "/";
     private String sameSite = "Strict";
+    private boolean httpOnly = true;
+    private boolean secure = true;
+    private int maxAge = 86400; // Default: 1 day
 }

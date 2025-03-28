@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class CookieAuthenticationConfigurer extends AbstractHttpConfigurer<CookieAuthenticationConfigurer, HttpSecurity> {
 
     private final CookieAuthenticationProvider cookieAuthenticationProvider;
+    private final CookieConfigProperties cookieConfig;
 
     @Override
     public void init(HttpSecurity http) {
@@ -21,6 +22,7 @@ public class CookieAuthenticationConfigurer extends AbstractHttpConfigurer<Cooki
     @Override
     public void configure(HttpSecurity http) {
         var authManager = http.getSharedObject(AuthenticationManager.class);
-        http.addFilterBefore(new CookieAuthenticationFilter(authManager), AuthorizationFilter.class);
+        var cookieAuthenticationFilter = new CookieAuthenticationFilter(authManager, cookieConfig);
+        http.addFilterBefore(cookieAuthenticationFilter, AuthorizationFilter.class);
     }
 }
