@@ -28,12 +28,38 @@ After adding, include it in your main project's  `pom.xml`:
 ```
 ## Configuration
 
-Add these properties to `application.properties`:
+To enable cookie-based authentication, you must configure the following properties in your `application.properties` or `application.yml`.
+
+These properties are loaded via the `CookieConfigProperties` class, and most have default values. You only need to override them if your use case differs.
+
+**Required:**
 ```properties
-cookie.auth.secret-key=your-secure-key # required
-cookie.auth.max-age=86400  # Cookie expiration in seconds (1 day) - optional
-cookie.auth.same-site=Strict # optional
+# Secret key used to sign and verify authentication cookies (HMAC)
+# MUST be a strong, securely generated string
+cookie.auth.secret-key=your-secure-key
 ```
+
+**Optional Properties (with Defaults):**
+| Property                  | Default Value   | Description                                              |
+|---------------------------|-----------------|----------------------------------------------------------|
+| `cookie.auth.name`        | `AUTH_COOKIE`    | Name of the authentication cookie                        |
+| `cookie.auth.path`        | `/`              | Path for which the cookie is valid                       |
+| `cookie.auth.same-site`   | `Strict`         | SameSite policy (`Strict`, `Lax`, or `None`)             |
+| `cookie.auth.http-only`   | `true`           | Prevents access to the cookie from JavaScript            |
+| `cookie.auth.secure`      | `true`           | Ensures cookie is only sent over HTTPS                   |
+| `cookie.auth.max-age`     | `86400` (1 day)  | Expiration time of the cookie in seconds                 |
+
+**Example:**
+```properties
+cookie.auth.secret-key=VGhpcy1pczEtVmVyeS1TZWN1cmUtU2VjcmV0S2V5IQ==
+cookie.auth.name=MY_AUTH_COOKIE
+cookie.auth.max-age=604800 # 7 days
+cookie.auth.same-site=Lax
+cookie.auth.secure=true
+```
+
+> ⚠️ **Note**: `cookie.auth.secret-key` is required due to `@ConditionalOnProperty`.  
+> If not defined, `CookieConfigProperties` will not be loaded, and any dependent beans will fail to initialize.
 
 ## Usage
 
@@ -43,7 +69,7 @@ Ensure your `SecurityConfig` includes `CookieAuthenticationConfigurer`:
 ```java
 public class SecurityConfig {
 
-    private final CookieAuthenticationProvider cookieAuthenticationProvider;
+    private final CookieAuthenticationConfigurer cookieAuthenticationConfigurer;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -53,7 +79,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/public", "/api/auth").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .with(new CookieAuthenticationConfigurer(cookieAuthenticationProvider), withDefaults())
+                .with(cookieAuthenticationConfigurer, withDefaults())
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling.authenticationEntryPoint(new DefaultAuthenticationEntryPoint()) // Add default exception for unauthorized requests
                 )
@@ -83,6 +109,13 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return new AuthResponseDto(authResult.getName());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        ResponseCookie expiredCookie = cookieUtilService.createExpiredAuthCookie();
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+        return ResponseEntity.ok().build();
     }
 }
 ```
